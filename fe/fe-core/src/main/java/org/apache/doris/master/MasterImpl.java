@@ -140,7 +140,7 @@ public class MasterImpl {
                         && taskType != TTaskType.CLONE && taskType != TTaskType.PUBLISH_VERSION
                         && taskType != TTaskType.CREATE && taskType != TTaskType.UPDATE_TABLET_META_INFO
                         && taskType != TTaskType.STORAGE_MEDIUM_MIGRATE
-                        && taskType != TTaskType.CALCULATE_DELETE_BITMAP) {
+                        && taskType != TTaskType.CALCULATE_DELETE_BITMAP && taskType != TTaskType.REALTIME_PUSH) {
                     return result;
                 }
             }
@@ -153,9 +153,13 @@ public class MasterImpl {
                     finishCreateReplica(task, request);
                     break;
                 case REALTIME_PUSH:
-                    checkHasTabletInfo(request);
-                    Preconditions.checkState(request.isSetReportVersion());
-                    finishRealtimePush(task, request);
+                    if (taskStatus.getStatusCode() != TStatusCode.OK) {
+                        finishDeleteTask(task);
+                    } else {
+                        checkHasTabletInfo(request);
+                        Preconditions.checkState(request.isSetReportVersion());
+                        finishRealtimePush(task, request);
+                    }
                     break;
                 case PUBLISH_VERSION:
                     finishPublishVersion(task, request);
@@ -418,6 +422,10 @@ public class MasterImpl {
         } finally {
             olapTable.writeUnlock();
         }
+    }
+
+    private void finishDeleteTask(AgentTask task) {
+        AgentTaskQueue.removeTask(task.getBackendId(), task.getTaskType(), task.getSignature());
     }
 
     private void checkReplica(TTabletInfo tTabletInfo, TabletMeta tabletMeta)
