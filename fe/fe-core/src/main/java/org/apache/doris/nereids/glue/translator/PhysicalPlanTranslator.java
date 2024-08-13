@@ -1854,17 +1854,19 @@ public class PhysicalPlanTranslator extends DefaultPlanVisitor<PlanFragment, Pla
 
     @Override
     public PlanFragment visitPhysicalLimit(PhysicalLimit<? extends Plan> physicalLimit, PlanTranslatorContext context) {
-        Plan childPlan = physicalLimit.child(0);
         PlanFragment inputFragment = physicalLimit.child(0).accept(this, context);
         PlanNode child = inputFragment.getPlanRoot();
-        if (childPlan instanceof PhysicalLimit) {
-            child.setLimit(Math.min(physicalLimit.getLimit() + physicalLimit.getOffset(), child.getLimit()));
+
+        if (!(inputFragment.getPlanRoot() instanceof ExchangeNode)) {
+            inputFragment.getPlanRoot().setLimit(physicalLimit.getLimit());
+            inputFragment.getPlanRoot().setOffset(physicalLimit.getOffset());
+            return inputFragment;
         } else {
             child.setLimit(MergeLimits.mergeLimit(physicalLimit.getLimit(), physicalLimit.getOffset(),
                     child.getLimit()));
+            // TODO: plan node don't support limit
+            // child.setOffset(MergeLimits.mergeOffset(physicalLimit.getOffset(), child.getOffset()));
         }
-        // TODO: plan node don't support limit
-        // child.setOffset(MergeLimits.mergeOffset(physicalLimit.getOffset(), child.getOffset()));
         updateLegacyPlanIdToPhysicalPlan(child, physicalLimit);
         return inputFragment;
     }

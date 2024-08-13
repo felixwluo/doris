@@ -19,11 +19,6 @@ suite("test_limit") {
     sql 'set enable_nereids_planner=true'
     sql 'set enable_fallback_to_original_planner=false'
 
-    def DBname = "limit_test_db" 
-    sql "DROP DATABASE IF EXISTS ${DBname}"
-    sql "CREATE DATABASE IF NOT EXISTS ${DBname}"
-    sql "use ${DBname}"
-
     sql """
     drop table if exists test1
     """
@@ -79,8 +74,5 @@ suite("test_limit") {
     qt_lmit2 """
             select row_number() over(order by k6 desc) k6s, t.* from row_number_limit_tbl t limit 1 offset 2;
         """
-
-    sql """ drop database IF EXISTS ${DBname} """
-    
 
 }
