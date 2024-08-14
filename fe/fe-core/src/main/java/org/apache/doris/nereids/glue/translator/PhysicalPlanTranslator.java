@@ -1857,9 +1857,9 @@ public class PhysicalPlanTranslator extends DefaultPlanVisitor<PlanFragment, Pla
         PlanFragment inputFragment = physicalLimit.child(0).accept(this, context);
         PlanNode child = inputFragment.getPlanRoot();
 
-        if (!(inputFragment.getPlanRoot() instanceof ExchangeNode)) {
-            inputFragment.getPlanRoot().setLimit(physicalLimit.getLimit());
-            inputFragment.getPlanRoot().setOffset(physicalLimit.getOffset());
+        if (!(child instanceof ExchangeNode)) {
+            child.setLimit(physicalLimit.getLimit());
+            child.setOffset(physicalLimit.getOffset());
             return inputFragment;
         } else {
             child.setLimit(MergeLimits.mergeLimit(physicalLimit.getLimit(), physicalLimit.getOffset(),
