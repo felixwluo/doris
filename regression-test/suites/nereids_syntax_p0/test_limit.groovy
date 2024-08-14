@@ -39,7 +39,6 @@ suite("test_limit") {
     sql """
     drop table if exists row_number_limit_tbl; 
     """
-
     sql """
             CREATE TABLE row_number_limit_tbl (
                 k1 INT NULL,
@@ -60,16 +59,19 @@ suite("test_limit") {
 
     sql """ INSERT INTO row_number_limit_tbl VALUES (7788, 'SCOTT', 'ANALYST', 7566, '1987-04-19', 3000, 0, 20); """
     sql """ INSERT INTO row_number_limit_tbl VALUES (7844, 'TURNER', 'SALESMAN', 7698, '1981-09-08', 1500, 0, 30); """
-    
+    sleep(1000)
+
     qt_limit1 """
             select row_number() over(order by k6 desc) k6s, t.* from row_number_limit_tbl t limit 1 offset 1;
         """
 
     sql """ truncate table row_number_limit_tbl; """
+    sleep(1000)
     
     sql """ INSERT INTO row_number_limit_tbl VALUES (7788, 'SCOTT', 'ANALYST', 7566, '1987-04-19', 3000, 0, 20); """
     sql """ INSERT INTO row_number_limit_tbl VALUES (7844, 'TURNER', 'SALESMAN', 7698, '1981-09-08', 1500, 0, 30); """
     sql """ INSERT INTO row_number_limit_tbl VALUES (7934, 'MILLER', 'CLERK', 7782, '1982-01-23', 1300, 0, 10); """
+    sleep(1000)
 
     qt_lmit2 """
             select row_number() over(order by k6 desc) k6s, t.* from row_number_limit_tbl t limit 1 offset 2;
