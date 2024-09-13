@@ -62,6 +62,7 @@ public class PlanPostProcessors {
         builder.add(new RemoveUselessProjectPostProcessor());
         builder.add(new MergeProjectPostProcessor());
         builder.add(new RecomputeLogicalPropertiesProcessor());
+
         if (cascadesContext.getConnectContext().getSessionVariable().enableAggregateCse) {
             builder.add(new ProjectAggregateExpressionsForCse());
         }
